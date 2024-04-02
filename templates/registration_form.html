@@ -1,0 +1,30 @@
+<form class="p-3" action="{{url_for('register')}}" method="POST">
+    
+    <div class="form-group">
+      <label for="productCategory">Title</label>
+      <input type="text" class="form-control" name="title">
+    </div>
+
+    <div class="form-group">
+      <label for="productPrice">ISBN</label>
+      <input type="text" class="form-control" name="ISBN">
+    </div>
+
+    <div class="form-group">
+      <label for="productPrice">Genre</label>
+      <input type="text" class="form-control" name="genre">
+    </div>
+    <div class="form-group">
+      <label for="productPrice">PublishedDate</label>
+      <input type="date" class="form-control" name="publisheddate">
+    </div>
+    <div class="form-group">
+      <label for="productQuantity">Quantity</label>
+      <input type="number" class="form-control" name="quantity">
+   
+  
+    </div>
+    <p class="text-danger">{{ get_flashed_messages() }}</p>
+
+    <button type="submit" class="btn btn-primary">Register Book</button>
+</form>

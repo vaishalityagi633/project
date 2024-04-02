@@ -1,0 +1,15 @@
+<form class="p-3" action="{{url_for('returnbook')}}" method="POST">
+    
+    <div class="form-group">
+      <label for="productCategory">Title</label>
+      <input type="text" class="form-control" name="bookname">
+    </div>
+    <div class="form-group">
+      <label for="productCategory">Member Name:</label>
+      <input type="text" class="form-control" name="membername">
+    </div>
+    
+    <p class="text-danger">{{ get_flashed_messages() }}</p>
+    <button type="submit" class="btn btn-primary">Return  Book</button>
+</form>
+

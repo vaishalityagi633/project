@@ -1,0 +1,43 @@
+{% extends 'layouts.html' %}
+{% block content %}
+<div class="container">
+  <h1 class="text-center my-5">Details of the  Books Issued</h1>
+</div>
+<div class="container">
+  <a href="#" class="btn btn-info" style="font-size: larger; font-weight:bolder;"></a>
+    <table class="table table-hover table-bordered">
+        <thead class="table-dark">
+          <tr>
+           
+            <th scope="col">Book Name</th>
+            <th scope="col">Member Name</th>
+            <th scope="col">Issue Date</th>
+            <th scope="col">Return Date</th>
+            
+            
+          </tr>
+        </thead>
+        <tbody>
+        
+        
+          {% for issue in issues %}
+          
+        
+       
+          
+          <tr>
+            <td>{{issue[1]}}</td>
+            <td>{{issue[2]}}</td>
+            <td>{{issue[3]}}</td>
+            <td>{{issue[4]}}</td>
+          
+         
+         
+         </tr>
+
+            
+          {% endfor %}
+        </tbody>
+      </table>
+</div>
+{% endblock %}
