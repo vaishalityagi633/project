@@ -10,18 +10,6 @@ app.secret_key = os.getenv('FLASK_SECRET_KEY','fcd6741a4ad8ad430ff636bfd04ae5bed
 
 
 
-
-
-# Establish a connection to the database
-#conn_str = f'DRIVER={{SQL Server}};SERVER={db_server};DATABASE={db_name};UID={db_user};PWD={db_password}'
-#conn = pyodbc.connect(conn_str)
-
-#os.environ["ODBCSYSINI"] = "/home/Vaishali"
-# Database configurations
-
-# Other configurations...
-
-
 #conn= pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT')
 #cursor=conn.cursor()
 #cursor.execute("Select * from Records.Book")
@@ -34,14 +22,14 @@ def insert_data(database,data):
                 cursor.execute(query,data)
                 conn.commit()
 def insert_datamember(database,data):
-             with pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT;UID=vaishali;Trusted_Connection=yes') as conn:
+             with pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT;Trusted_Connection=yes') as conn:
                 cursor=conn.cursor()
                 query=f'''INSERT INTO Record.Member (MemberName,ContactNumber,Email,Address) VALUES (?,?,?,?)'''
                 cursor.execute(query,data)
                 conn.commit()    
 
 def insert_dataissue(database,data):
-             with pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003,1433;DATABASE=PROJECT;UID=vaishali;Trusted_Connection=yes') as conn:
+             with pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003,1433;DATABASE=PROJECT;Trusted_Connection=yes') as conn:
              
                 cursor=conn.cursor()
                 query=f'''INSERT INTO Record.Issues(Title,MemberName,IssueDate,ReturnDate) VALUES (?,?,?,?)'''
@@ -57,7 +45,7 @@ def signin():
         username = request.form['username']
         password = request.form['password']
  
-        conn =  pyodbc.connect('DRIVER={SQL Server};SERVER=host.docker.internal;DATABASE=PROJECT;UID=vaishali,PWD=librarymgmt')
+        conn =  pyodbc.connect('DRIVER={SQL Server};SERVER=host.docker.internal;DATABASE=PROJECT;Trusted_Connection=yes')
         cursor = conn.cursor()
         cursor.execute('SELECT * FROM Record.Staff WHERE Staffname = ?', (username,))
         user = cursor.fetchone()
@@ -89,7 +77,7 @@ def signup():
         #print(hashed_password)
  
         try:
-            conn = pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT;Trusted_Connection=yes')
+            conn = pyodbc.connect('DRIVER={SQL Server};SERVER=host.docker.internal;DATABASE=PROJECT;Trusted_Connection=yes')
             cursor = conn.cursor()
             cursor.execute('INSERT INTO Record.Staff (Staffname, Password) VALUES (?,?)', (username, hashed_password))
             conn.commit()
@@ -122,7 +110,7 @@ def registermember():
   
 @app.route('/displaymember')
 def displaymember():
-    with pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT;Trusted_Connection=yes') as conn:
+    with pyodbc.connect('DRIVER={SQL Server};SERVER=host.docker.internal;DATABASE=PROJECT;Trusted_Connection=yes') as conn:
         cursor=conn.cursor()
         query=f'select * from Record.Member'
         cursor.execute(query)
@@ -147,7 +135,7 @@ def register():
         btitle_lower = btitle.lower()
         data=(btitle_lower,bISBN,genre,pdate,quantity)
         # Check if both the book and member exist
-        conn = pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT;Trusted_Connection=yes')
+        conn = pyodbc.connect('DRIVER={SQL Server};SERVER=host.docker.internal;DATABASE=PROJECT;Trusted_Connection=yes')
         cursor = conn.cursor()
         
         # Check if the book exists
@@ -338,18 +326,7 @@ def returnbook():
             #return redirect(url_for('display'))
     return render_template('return.html')
 
-@app.route('/displaydata/<id>')
-def displaydata(id): 
-        with pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT;Trusted_Connection=yes') as conn:
-            cursor=conn.cursor()
-            query=f'''Select * from Records.Book 
-                  INNER JOIN  Record.Issues
-                  ON Record.Book.BookID=Record.Issues.BookID
-                  WHERE  Record.Issues.BookID=?'''
-            cursor.execute(query,(id,))
-            
-            data=cursor.fetchall()
-        return render_template('displayissuedata.html',data=data,id=id)
+
     
 if __name__=='__main__':  
     app.run(debug=False,host='0.0.0.0')
