@@ -9,11 +9,11 @@ services:
     ports:
       - "5000:5000"
     depends_on:
-      - sql server
+      - sqlserver
     networks:
       - app-network
 
-  sql server:
+  sqlserver:
     image: "mcr.microsoft.com/mssql/server:2019-latest"
     restart: always
     environment:
@@ -26,7 +26,8 @@ services:
       - sqlserver-data:/var/opt/mssql
     networks:
       - app-network
-
+   volumes:
+      sqlserver-data:
 
 
 
