@@ -1,5 +1,3 @@
-
-#import logging
 import os
 from flask import Flask, render_template, request, url_for, redirect,session
 from flask import flash
@@ -10,32 +8,41 @@ database='PROJECT'
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY','fcd6741a4ad8ad430ff636bfd04ae5bed4286b6eeaefdf3edf06d02695782441')
 
+
+
+
+
+# Establish a connection to the database
+#conn_str = f'DRIVER={{SQL Server}};SERVER={db_server};DATABASE={db_name};UID={db_user};PWD={db_password}'
+#conn = pyodbc.connect(conn_str)
+
 #os.environ["ODBCSYSINI"] = "/home/Vaishali"
 # Database configurations
 
 # Other configurations...
 
 
-#conn= pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=LibraryMgmt')
+#conn= pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT')
 #cursor=conn.cursor()
 #cursor.execute("Select * from Records.Book")
 #for row in cursor.fetchall():
     #print(row)
 def insert_data(database,data):
-             with pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT') as conn:
+             with pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT;Trusted_Connection=yes') as conn:
                 cursor=conn.cursor()
                 query=f'''INSERT INTO Record.Book (Title,ISBN,Genre,PublishedDate,QuantityInStock) VALUES (?,?,?,?,?)'''
                 cursor.execute(query,data)
                 conn.commit()
 def insert_datamember(database,data):
-             with pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT') as conn:
+             with pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT;UID=vaishali;Trusted_Connection=yes') as conn:
                 cursor=conn.cursor()
                 query=f'''INSERT INTO Record.Member (MemberName,ContactNumber,Email,Address) VALUES (?,?,?,?)'''
                 cursor.execute(query,data)
                 conn.commit()    
 
 def insert_dataissue(database,data):
-             with pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT') as conn:
+             with pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003,1433;DATABASE=PROJECT;UID=vaishali;Trusted_Connection=yes') as conn:
+             
                 cursor=conn.cursor()
                 query=f'''INSERT INTO Record.Issues(Title,MemberName,IssueDate,ReturnDate) VALUES (?,?,?,?)'''
                 cursor.execute(query,data)
@@ -50,7 +57,7 @@ def signin():
         username = request.form['username']
         password = request.form['password']
  
-        conn =  pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT')
+        conn =  pyodbc.connect('DRIVER={SQL Server};SERVER=host.docker.internal;DATABASE=PROJECT;UID=vaishali,PWD=librarymgmt')
         cursor = conn.cursor()
         cursor.execute('SELECT * FROM Record.Staff WHERE Staffname = ?', (username,))
         user = cursor.fetchone()
@@ -82,7 +89,7 @@ def signup():
         #print(hashed_password)
  
         try:
-            conn = pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT')
+            conn = pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT;Trusted_Connection=yes')
             cursor = conn.cursor()
             cursor.execute('INSERT INTO Record.Staff (Staffname, Password) VALUES (?,?)', (username, hashed_password))
             conn.commit()
@@ -115,7 +122,7 @@ def registermember():
   
 @app.route('/displaymember')
 def displaymember():
-    with pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT') as conn:
+    with pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT;Trusted_Connection=yes') as conn:
         cursor=conn.cursor()
         query=f'select * from Record.Member'
         cursor.execute(query)
@@ -140,7 +147,7 @@ def register():
         btitle_lower = btitle.lower()
         data=(btitle_lower,bISBN,genre,pdate,quantity)
         # Check if both the book and member exist
-        conn = pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT')
+        conn = pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT;Trusted_Connection=yes')
         cursor = conn.cursor()
         
         # Check if the book exists
@@ -164,7 +171,7 @@ def register():
 
 @app.route('/display')
 def display():
-    with pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT') as conn:
+    with pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT;Trusted_Connection=yes') as conn:
         cursor=conn.cursor()
         query=f'select * from Record.Book'
         cursor.execute(query)
@@ -178,7 +185,7 @@ def searchbook():
         search_term=search_term.split()
         
         filt_books=[]
-        with pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT') as conn:
+        with pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT;Trusted_Connection=yes') as conn:
             cursor=conn.cursor()
             query=f'select * from Record.book '
             cursor.execute(query)
@@ -210,13 +217,14 @@ def update(id):
                 SET 
                     QuantityInStock=?
                 WHERE BookID=?'''
-        with pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT') as conn:
+        with pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT;Trusted_Connection=yes') as conn:
+
             cursor=conn.cursor()
             cursor.execute(query,books)
             conn.commit()
         return redirect(url_for('display'))
 
-    with pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT') as conn:
+    with pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT;Trusted_Connection=yes') as conn:
         cursor=conn.cursor()
         query=f'select * from Record.Book where BookID=?'
         cursor.execute(query,(id,))
@@ -226,7 +234,7 @@ def update(id):
     return render_template('update.html',books=update_pr)
 @app.route('/delete/<id>')
 def delete(id):
-    with pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT') as conn:
+    with pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT;Trusted_Connection=yes') as conn:
         cursor=conn.cursor()
         query=f'DELETE from Record.Book where BookID=?'
         cursor.execute(query,(id,))
@@ -243,7 +251,7 @@ def issue():
         returndate = request.form['returndate']
         
         # Check if both the book and member exist
-        conn = pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT')
+        conn = pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT;Trusted_Connection=yes')
         cursor = conn.cursor()
         
         # Check if the book exists
@@ -264,7 +272,7 @@ def issue():
                 new_quantity = book[5] - 1
                 
                 # Update the quantity of the book in the database
-                conn = pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT')
+                conn = pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT;Trusted_Connection=yes')
                 cursor = conn.cursor()
                 cursor.execute('UPDATE Record.Book SET QuantityInStock = ? WHERE Title = ?', (new_quantity, bname))
                 conn.commit()
@@ -287,7 +295,7 @@ def issue():
 
 @app.route('/displayissue')
 def displayissue():
-    with pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT') as conn:
+    with pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT;Trusted_Connection=yes') as conn:
         cursor=conn.cursor()
         query=f'select * from Record.Issues'
         cursor.execute(query)
@@ -301,7 +309,7 @@ def returnbook():
         #Also take member_name from the frontend
         member_name=request.form['membername']
         # Retrieve book details from the database
-        conn = pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT')
+        conn = pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT;Trusted_Connection=yes')
         cursor = conn.cursor()
         cursor.execute('SELECT * FROM Record.Book WHERE Title= ? ', (book_name))
         book = cursor.fetchone()
@@ -311,7 +319,7 @@ def returnbook():
             # Increment the quantity by 1
             new_quantity = book[5] + 1  # Assuming quantity is at index 5
             # Update the quantity in the database
-            conn = pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT')
+            conn = pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT;Trusted_Connection=yes')
             cursor = conn.cursor()
             cursor.execute('UPDATE Record.Book SET QuantityInStock = ? WHERE Title = ?', (new_quantity, book_name))
 
@@ -332,7 +340,7 @@ def returnbook():
 
 @app.route('/displaydata/<id>')
 def displaydata(id): 
-        with pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT') as conn:
+        with pyodbc.connect('DRIVER={SQL Server};SERVER=BLT210003;DATABASE=PROJECT;Trusted_Connection=yes') as conn:
             cursor=conn.cursor()
             query=f'''Select * from Records.Book 
                   INNER JOIN  Record.Issues
@@ -341,25 +349,10 @@ def displaydata(id):
             cursor.execute(query,(id,))
             
             data=cursor.fetchall()
-        return render_template('displayissuedata.html',data=data,id=id) 
-# Configure logging
-#logging.basicConfig(filename='error.log', level=logging.ERROR)
-# Your route handlers...
-
-# Error handler for 404 Not Found errors
-#@app.errorhandler(404)
-#def page_not_found(error):
-    #app.logger.error('Page not found: %s', request.path)
-    #return render_template('404.html'), 404
-
-# Error handler for 500 Internal Server Error
-#@app.errorhandler(500)
-#def internal_server_error(error):
-    #app.logger.error('Server error: %s', error)
-    #return render_template('500.html'), 500
+        return render_template('displayissuedata.html',data=data,id=id)
     
 if __name__=='__main__':  
-    app.run(debug=False)
+    app.run(debug=False,host='0.0.0.0')
 
 
 
