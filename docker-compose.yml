@@ -2,32 +2,32 @@
 version: '3.8'
 
 services:
-  app:
-    build: 
-      context: .
-      dockerfile: Dockerfile
+  web:
+    build: .  
     ports:
       - "5000:5000"
     depends_on:
-      - sqlserver
-    networks:
-      - app-network
+      - db
+    environment:
+      DB_NAME: PROJECT
+      DB_USER: postgres
+      DB_PASSWORD: smart@vt2
+      DB_HOST: db
+      DB_PORT: 5432
+    volumes:
+      - .:/app
 
-  sqlserver:
-    image: "mcr.microsoft.com/mssql/server:2019-latest"
+  db:
+    image: postgres
     restart: always
     environment:
-      MSSQL_USER: vaishali
-      MSSQL_PASSWORD: librarymgmt2393
-      MSSQL_DATABASE: "PROJECT"
+      POSTGRES_DB: PROJECT
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: smart@vt2
     ports:
-      - "1433:1433"
-    volumes:
-      - sqlserver-data:/var/opt/mssql
-    networks:
-      - app-network
-   volumes:
-      sqlserver-data:
+      - "5432:5432"
+
+
 
 
 
