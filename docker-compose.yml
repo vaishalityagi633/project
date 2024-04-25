@@ -1,31 +1,39 @@
-
 version: '3.8'
-
 services:
-  web:
-    build: .  
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "5000:5000"
     depends_on:
-      - db
-    environment:
-      DB_NAME: PROJECT
-      DB_USER: postgres
-      DB_PASSWORD: smart@vt2
-      DB_HOST: db
-      DB_PORT: 5432
-    volumes:
-      - .:/app
+      - postgres
+    networks:
+      - app-network
 
-  db:
-    image: postgres
+  postgres:
+    image: postgres:latest
     restart: always
     environment:
-      POSTGRES_DB: PROJECT
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: smart@vt2
+      POSTGRES_DB: PROJECT
     ports:
       - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app-network
+
+
+networks:
+  app-network:
+    driver: bridge
+volumes:
+  postgres-data:
+
+ 
 
 
 
